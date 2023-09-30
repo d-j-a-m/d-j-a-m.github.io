@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>DJAM</title>
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="styles/atom-one-dark-reasonable.min.css">
+    </head>
+
+    <body>
+        <script src="highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+        <div class="navbar">
+            <span>
+                <a href="#idea">IDEA</a>
+                <a href="#pitch">PITCH</a>
+                <a href="#model">MODEL</a>
+                <a href="#analysis">ANALYSIS</a>
+                <a href="#stats">STATS</a>
+                <a href="#documentation">DOCUMENTATION</a>
+            </span>
+        </div>
+        <hr class="hr-top">
+        <h2 class="part-title" id="idea">IDEA</h2>
+        <hr class="hr-bottom">
+        <div class="card">
+            <div>
+                <p>
+                    <span class="card-title">HOVER ME</span>
+                    <span class="card-description">here we are testing a description of the idea</span>
+                </p>
+                <img src="../analysis-correlation.png">
+            </div>
+            <div>
+                <p>
+                    <span class="card-title">HOVER ME</span>
+                    <span class="card-description">here we are testing a description of the idea</span>
+                </p>
+                <img src="../analysis-correlation.png">
+            </div>
+            <div>
+                <p>
+                    <span class="card-title">HOVER ME</span>
+                    <span class="card-description">here we are testing a description of the idea</span>
+                </p>
+                <img src="../analysis-correlation.png">
+            </div>
+        </div>
+        <hr class="hr-top">
+        <h2 class="part-title" id="pitch">PITCH</h2>
+        <hr class="hr-bottom">
+        <div class="group">
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/SGuZLdFWZOQ?si=nIhr5bGPhss0zo0s"
+                title="YouTube video player" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen></iframe>
+        </div>
+        <hr class="hr-top">
+        <h2 class="part-title" id="model">MODEL</h2>
+        <hr class="hr-bottom">
+        <div class="group" , id="model">
+            <pre><code class="language-python">
+                import numpy as np
+                import pandas as pd
+                import csv
+                
+                from sklearn.ensemble import RandomForestRegressor
+                from sklearn.model_selection import train_test_split
+                from sklearn.model_selection import RandomizedSearchCV
+                from sklearn import metrics
+                
+                from warnings import filterwarnings
+                filterwarnings('ignore')
+                
+                # You are provided the following set of information on a (year, weekofyear) timescale:
+                
+                # city – City abbreviations: sj for San Juan and iq for Iquitos
+                # week_start_date – Date given in yyyy-mm-dd format
+                
+                # station_max_temp_c – Maximum temperature
+                # station_min_temp_c – Minimum temperature
+                # station_avg_temp_c – Average temperature
+                # station_precip_mm – Total precipitation
+                # station_diur_temp_rng_c – Diurnal temperature range
+                
+                # precipitation_amt_mm – Total precipitation
+                
+                # reanalysis_sat_precip_amt_mm – Total precipitation
+                # reanalysis_dew_point_temp_k – Mean dew point temperature
+                # reanalysis_air_temp_k – Mean air temperature
+                # reanalysis_relative_humidity_percent – Mean relative humidity
+                # reanalysis_specific_humidity_g_per_kg – Mean specific humidity
+                # reanalysis_precip_amt_kg_per_m2 – Total precipitation
+                # reanalysis_max_air_temp_k – Maximum air temperature
+                # reanalysis_min_air_temp_k – Minimum air temperature
+                # reanalysis_avg_temp_k – Average air temperature
+                # reanalysis_tdtr_k – Diurnal temperature range
+                
+                # ndvi_se – Pixel southeast of city centroid
+                # ndvi_sw – Pixel southwest of city centroid
+                # ndvi_ne – Pixel northeast of city centroid
+                # ndvi_nw – Pixel northwest of city centroid
+                
+                use = ["city","year","weekofyear",
+                "precipitation_amt_mm", "station_precip_mm",
+                "reanalysis_min_air_temp_k","reanalysis_dew_point_temp_k","reanalysis_relative_humidity_percent"]
+                
+                features = pd.read_csv("data/dengue_features_train.csv", usecols = use)
+                labels = pd.read_csv("data/dengue_labels_train.csv", usecols=["city","total_cases"])
+                features.interpolate(method="linear", inplace=True)
+                
+                features, Val_X, labels, Val_Y = train_test_split(features, labels,random_state=0,test_size = 0.2)
+                
+                Sregressor = RandomForestRegressor(n_estimators=471, min_samples_split = 2, min_samples_leaf = 1,
+                max_features = "log2", max_depth = 103, bootstrap = False ,
+                criterion="absolute_error",random_state=0)
+                Iregressor = RandomForestRegressor(n_estimators=214, min_samples_split = 5, min_samples_leaf = 1,
+                max_features = "log2", max_depth = 97, bootstrap = False ,
+                criterion="absolute_error",random_state=0)
+                
+                
+                Sx = features.loc[features["city"] == "sj"]
+                Sy = labels.loc[labels["city"] == "sj"]
+                Ix = features.loc[features["city"] == "iq"]
+                Iy = labels.loc[labels["city"] == "iq"]
+                
+                SVal_X = Val_X.loc[Val_X["city"] == "sj"]
+                SVal_Y = Val_Y.loc[Val_Y["city"] == "sj"]
+                IVal_X = Val_X.loc[Val_X["city"] == "iq"]
+                IVal_Y = Val_Y.loc[Val_Y["city"] == "iq"]
+                
+                Sx.drop("city", axis=1, inplace = True)
+                Sy.drop("city", axis=1, inplace = True)
+                Ix.drop("city", axis=1, inplace = True)
+                Iy.drop("city", axis=1, inplace = True)
+                SVal_X.drop("city", axis=1, inplace = True)
+                SVal_Y.drop("city", axis=1, inplace = True)
+                IVal_X.drop("city", axis=1, inplace = True)
+                IVal_Y.drop("city", axis=1, inplace = True)
+                
+                Sregressor.fit(Sx, Sy)
+                Iregressor.fit(Ix, Iy)
+                
+                
+                testfeatures = pd.read_csv("data/dengue_features_test.csv", usecols = use)
+                testfeatures.interpolate(method="linear", inplace=True)
+                
+                St = testfeatures.loc[testfeatures["city"] == "sj"]
+                It = testfeatures.loc[testfeatures["city"] == "iq"]
+                
+                SY_pred = Sregressor.predict(St.iloc[:,1:])
+                IY_pred = Iregressor.predict(It.iloc[:,1:])
+                
+                with open('submission.csv', 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(["city","year","weekofyear","total_cases"])
+                for n,i in enumerate(SY_pred):
+                writer.writerow([St.iloc[n,0],St.iloc[n,1],St.iloc[n,2],i.round().astype(int)])
+                for n,i in enumerate(IY_pred):
+                writer.writerow([It.iloc[n,0],It.iloc[n,1],It.iloc[n,2],i.round().astype(int)])
+                
+                print('Mean Absolute Error:',metrics.mean_absolute_error(SVal_Y, Sregressor.predict(SVal_X)))
+                print('Accuracy: ', metrics.mean_absolute_percentage_error(SVal_Y, Sregressor.predict(SVal_X)))
+                print('Mean Absolute Error:',metrics.mean_absolute_error(IVal_Y, Iregressor.predict(IVal_X)))
+                print('Accuracy: ', metrics.mean_absolute_percentage_error(IVal_Y, Iregressor.predict(IVal_X)))
+                
+                
+                # Number of trees in random forest
+                n_estimators = [int(x) for x in np.linspace(start = 100, stop = 2000, num = 10)]
+                print(n_estimators)
+                # Number of features to consider at every split
+                max_features = ['auto', 'sqrt']
+                # Maximum number of levels in tree
+                max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
+                max_depth.append(None)
+                # Minimum number of samples required to split a node
+                min_samples_split = [2, 5, 10]
+                # Minimum number of samples required at each leaf node
+                min_samples_leaf = [1, 2, 4]
+                # Method of selecting samples for training each tree
+                bootstrap = [True, False]
+                # Create the random grid
+                random_grid = {'n_estimators': n_estimators,
+                'max_features': max_features,
+                'max_depth': max_depth,
+                'min_samples_split': min_samples_split,
+                'min_samples_leaf': min_samples_leaf,
+                'bootstrap': bootstrap}
+                
+                
+                Srf_random = RandomizedSearchCV(estimator = Sregressor, param_distributions = random_grid, n_iter = 100, cv = 3, n_jobs
+                = -1)
+                Irf_random = RandomizedSearchCV(estimator = Iregressor, param_distributions = random_grid, n_iter = 100, cv = 3, n_jobs
+                = -1)
+                Srf_random.fit(Sx, Sy["total_cases"])
+                print(Srf_random.best_params_)
+                Irf_random.fit(Ix, Iy["total_cases"])
+                print(Irf_random.best_params_)
+                print('Mean Absolute Error:',metrics.mean_absolute_error(SVal_Y, Srf_random.predict(SVal_X)))
+                print('Accuracy: ', metrics.mean_absolute_percentage_error(SVal_Y, Srf_random.predict(SVal_X)))
+                print('Mean Absolute Error:',metrics.mean_absolute_error(IVal_Y, Irf_random.predict(IVal_X)))
+                print('Accuracy: ', metrics.mean_absolute_percentage_error(IVal_Y, Irf_random.predict(IVal_X)))
+            </code></pre>
+        </div>
+        <hr class="hr-top">
+        <h2 class="part-title" id="analysis">ANALYSIS</h2>
+        <hr class="hr-bottom">
+        <div class="group"></div>
+
+        <hr class="hr-top">
+        <h2 class="part-title" id="stats">STATS</h2>
+        <hr class="hr-bottom">
+        <div class="group"></div>
+
+        <hr class="hr-top">
+        <h2 class="part-title" id="documentation">DOCUMENTATION</h2>
+        <hr class="hr-bottom">
+        <div class="group"></div>
+    </body>
+
+</html>
