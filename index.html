@@ -25,12 +25,13 @@
                 <a href="#methods">METHODEN</a>
                 <a href="#stats">STATISTIKEN</a>
                 <a href="#conclusion">FAZIT</a>
+                <a href="#team">TEAM</a>
             </span>
         </div>
-        <hr class="hr-top">
-        <h2 class="part-title" id="intro">EINFÜHRUNG</h2>
-        <hr class="hr-bottom">
-        <div class="group">
+        <div class="group" id="intro">
+            <hr class="hr-top">
+            <h2 class="part-title">EINFÜHRUNG</h2>
+            <hr class="hr-bottom">
             <p>
                 Im Jahr 2022 konnte die WHO 4,2 Millionen Fälle von Dengue-Fieber verzeichnen, wobei eine geschätzte
                 Dunkelziffer von
@@ -48,10 +49,10 @@
             </p>
         </div>
 
-        <hr class="hr-top">
-        <h2 class="part-title" id="problem">PROBLEMSTELLUNG</h2>
-        <hr class="hr-bottom">
-        <div class="group">
+        <div class="group" , id="problem">
+            <hr class="hr-top">
+            <h2 class="part-title">PROBLEMSTELLUNG</h2>
+            <hr class="hr-bottom">
             <p>
                 Unser Ziel ist es, gezielte Vorhersagen über Dengue-Fieber-Fälle mithilfe leicht messbarer Daten zu
                 treffen. Dadurch
@@ -65,25 +66,26 @@
             </p>
         </div>
 
-        <hr class="hr-top">
-        <h2 class="part-title" id="pitch">PITCH</h2>
-        <hr class="hr-bottom">
-        <div class="group">
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/SGuZLdFWZOQ?si=nIhr5bGPhss0zo0s"
+        <div class="group" id="pitch">
+            <hr class="hr-top">
+            <h2 class="part-title">PITCH</h2>
+            <hr class="hr-bottom">
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/uWe6svcDFso?si=t9PpbxsLAkuSlMkC"
                 title="YouTube video player" frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen></iframe>
         </div>
 
-        <hr class="hr-top">
-        <h2 class="part-title" id="model">MODEL</h2>
-        <hr class="hr-bottom">
         <div class="group" , id="model">
+            <hr class="hr-top">
+            <h2 class="part-title" id="model">MODEL</h2>
+            <hr class="hr-bottom">
             <pre><code class="language-python">
                 # Import libraries necessary for handling data
                 import numpy as np
                 import pandas as pd
                 import csv
+                import os
                 
                 # Importing necessary machine learning libraries
                 from sklearn.ensemble import RandomForestRegressor
@@ -93,28 +95,62 @@
                 
                 # Ignore warnings to keep the output clean
                 from warnings import filterwarnings
-                filterwarnings('ignore')
+                
+                filterwarnings("ignore")
+                
+                # where is this file located?
+                folder_path = os.path.dirname(os.path.realpath(__file__))
                 
                 # Selecting the features we want to use
-                use = ["city", "year", "weekofyear",
-                "precipitation_amt_mm", "station_precip_mm",
-                "reanalysis_min_air_temp_k", "reanalysis_dew_point_temp_k", "reanalysis_relative_humidity_percent"]
+                use = [
+                    "city",
+                    "year",
+                    "weekofyear",
+                    "precipitation_amt_mm",
+                    "station_precip_mm",
+                    "reanalysis_min_air_temp_k",
+                    "reanalysis_dew_point_temp_k",
+                    "reanalysis_relative_humidity_percent",
+                ]
                 
                 # Loading the feature and label data
-                features = pd.read_csv("data/dengue_features_train.csv", usecols=use)
-                labels = pd.read_csv("data/dengue_labels_train.csv", usecols=["city", "total_cases"])
+                features = pd.read_csv(
+                    os.path.join(folder_path, "data/dengue_features_train.csv"), usecols=use
+                )
+                labels = pd.read_csv(
+                    os.path.join(folder_path, "data/dengue_labels_train.csv"),
+                    usecols=["city", "total_cases"],
+                )
                 
                 # Linearly interpolate missing values in the features
                 features.interpolate(method="linear", inplace=True)
                 
                 # Splitting the data into training and validation sets
-                features, Val_X, labels, Val_Y = train_test_split(features, labels, random_state=0, test_size=0.2)
+                features, Val_X, labels, Val_Y = train_test_split(
+                    features, labels, random_state=0, test_size=0.2
+                )
                 
                 # Initializing two Random Forest Regressors for different cities
-                Sregressor = RandomForestRegressor(n_estimators=471, min_samples_split=2, min_samples_leaf=1,
-                max_features="log2", max_depth=103, bootstrap=False, criterion="absolute_error", random_state=0)
-                Iregressor = RandomForestRegressor(n_estimators=214, min_samples_split=5, min_samples_leaf=1,
-                max_features="log2", max_depth=97, bootstrap=False, criterion="absolute_error", random_state=0)
+                Sregressor = RandomForestRegressor(
+                    n_estimators=471,
+                    min_samples_split=2,
+                    min_samples_leaf=1,
+                    max_features="log2",
+                    max_depth=103,
+                    bootstrap=False,
+                    criterion="absolute_error",
+                    random_state=0,
+                )
+                Iregressor = RandomForestRegressor(
+                    n_estimators=214,
+                    min_samples_split=5,
+                    min_samples_leaf=1,
+                    max_features="log2",
+                    max_depth=97,
+                    bootstrap=False,
+                    criterion="absolute_error",
+                    random_state=0,
+                )
                 
                 # Separating data for San Juan and Iquitos
                 Sx = features.loc[features["city"] == "sj"]
@@ -142,7 +178,9 @@
                 Iregressor.fit(Ix, Iy)
                 
                 # Loading the test data
-                testfeatures = pd.read_csv("data/dengue_features_test.csv", usecols=use)
+                testfeatures = pd.read_csv(
+                    os.path.join(folder_path, "data/dengue_features_test.csv"), usecols=use
+                )
                 
                 # Linearly interpolate missing values in the test data
                 testfeatures.interpolate(method="linear", inplace=True)
@@ -156,19 +194,35 @@
                 IY_pred = Iregressor.predict(It.iloc[:, 1:])
                 
                 # Writing predictions to a CSV file
-                with open('submission.csv', 'w', newline='') as file:
+                with open("submission.csv", "w", newline="") as file:
                     writer = csv.writer(file)
-                        writer.writerow(["city", "year", "weekofyear", "total_cases"])
+                    writer.writerow(["city", "year", "weekofyear", "total_cases"])
                     for n, i in enumerate(SY_pred):
-                        writer.writerow([St.iloc[n, 0], St.iloc[n, 1], St.iloc[n, 2], i.round().astype(int)])
+                        writer.writerow(
+                            [St.iloc[n, 0], St.iloc[n, 1], St.iloc[n, 2], i.round().astype(int)]
+                        )
                     for n, i in enumerate(IY_pred):
-                        writer.writerow([It.iloc[n, 0], It.iloc[n, 1], It.iloc[n, 2], i.round().astype(int)])
+                        writer.writerow(
+                            [It.iloc[n, 0], It.iloc[n, 1], It.iloc[n, 2], i.round().astype(int)]
+                        )
                 
                 # Printing evaluation metrics for both cities
-                print('Mean Absolute Error (San Juan):', metrics.mean_absolute_error(SVal_Y, Sregressor.predict(SVal_X)))
-                print('Accuracy (San Juan): ', metrics.mean_absolute_percentage_error(SVal_Y, Sregressor.predict(SVal_X)))
-                print('Mean Absolute Error (Iquitos):', metrics.mean_absolute_error(IVal_Y, Iregressor.predict(IVal_X)))
-                print('Accuracy (Iquitos): ', metrics.mean_absolute_percentage_error(IVal_Y, Iregressor.predict(IVal_X)))
+                print(
+                    "Mean Absolute Error (San Juan):",
+                    metrics.mean_absolute_error(SVal_Y, Sregressor.predict(SVal_X)),
+                )
+                print(
+                    "Accuracy (San Juan): ",
+                    metrics.mean_absolute_percentage_error(SVal_Y, Sregressor.predict(SVal_X)),
+                )
+                print(
+                    "Mean Absolute Error (Iquitos):",
+                    metrics.mean_absolute_error(IVal_Y, Iregressor.predict(IVal_X)),
+                )
+                print(
+                    "Accuracy (Iquitos): ",
+                    metrics.mean_absolute_percentage_error(IVal_Y, Iregressor.predict(IVal_X)),
+                )
                 
                 # Defining hyperparameter search space for Random Forest
                 # Number of trees in random forest
@@ -176,7 +230,7 @@
                 print(n_estimators)
                 
                 # Number of features to consider at every split
-                max_features = ['auto', 'sqrt']
+                max_features = ["auto", "sqrt"]
                 
                 # Maximum number of levels in the tree
                 max_depth = [int(x) for x in np.linspace(10, 110, num=11)]
@@ -193,17 +247,21 @@
                 
                 # Creating the random grid for hyperparameter tuning
                 random_grid = {
-                'n_estimators': n_estimators,
-                'max_features': max_features,
-                'max_depth': max_depth,
-                'min_samples_split': min_samples_split,
-                'min_samples_leaf': min_samples_leaf,
-                'bootstrap': bootstrap
+                    "n_estimators": n_estimators,
+                    "max_features": max_features,
+                    "max_depth": max_depth,
+                    "min_samples_split": min_samples_split,
+                    "min_samples_leaf": min_samples_leaf,
+                    "bootstrap": bootstrap,
                 }
                 
                 # Performing Randomized Search for hyperparameter tuning
-                Srf_random = RandomizedSearchCV(estimator=Sregressor, param_distributions=random_grid, n_iter=100, cv=3, n_jobs=-1)
-                Irf_random = RandomizedSearchCV(estimator=Iregressor, param_distributions=random_grid, n_iter=100, cv=3, n_jobs=-1)
+                Srf_random = RandomizedSearchCV(
+                    estimator=Sregressor, param_distributions=random_grid, n_iter=100, cv=3, n_jobs=-1
+                )
+                Irf_random = RandomizedSearchCV(
+                    estimator=Iregressor, param_distributions=random_grid, n_iter=100, cv=3, n_jobs=-1
+                )
                 
                 Srf_random.fit(Sx, Sy["total_cases"])
                 print("Best Hyperparameters (San Juan):", Srf_random.best_params_)
@@ -212,18 +270,30 @@
                 print("Best Hyperparameters (Iquitos):", Irf_random.best_params_)
                 
                 # Printing evaluation metrics for models with tuned hyperparameters
-                print('Mean Absolute Error (San Juan - Tuned):', metrics.mean_absolute_error(SVal_Y, Srf_random.predict(SVal_X)))
-                print('Accuracy (San Juan - Tuned): ', metrics.mean_absolute_percentage_error(SVal_Y, Srf_random.predict(SVal_X)))
-                print('Mean Absolute Error (Iquitos - Tuned):', metrics.mean_absolute_error(IVal_Y, Irf_random.predict(IVal_X)))
-                print('Accuracy (Iquitos - Tuned): ', metrics.mean_absolute_percentage_error(IVal_Y, Irf_random.predict(IVal_X
+                print(
+                    "Mean Absolute Error (San Juan - Tuned):",
+                    metrics.mean_absolute_error(SVal_Y, Srf_random.predict(SVal_X)),
+                )
+                print(
+                    "Accuracy (San Juan - Tuned): ",
+                    metrics.mean_absolute_percentage_error(SVal_Y, Srf_random.predict(SVal_X)),
+                )
+                print(
+                    "Mean Absolute Error (Iquitos - Tuned):",
+                    metrics.mean_absolute_error(IVal_Y, Irf_random.predict(IVal_X)),
+                )
+                print(
+                    "Accuracy (Iquitos - Tuned): ",
+                    metrics.mean_absolute_percentage_error(IVal_Y, Irf_random.predict(IVal_X)),
+                )
 
             </code></pre>
         </div>
 
-        <hr class="hr-top">
-        <h2 class="part-title" id="dataset">DATENSATZ</h2>
-        <hr class="hr-bottom">
-        <div class="group">
+        <div class="group" id="dataset">
+            <hr class="hr-top">
+            <h2 class="part-title">DATENSATZ</h2>
+            <hr class="hr-bottom">
             <p>
                 Der Datensatz umfasst Informationen aus San Juan und Iquitos über Temperatur, Luftfeuchtigkeit,
                 Niederschlag und
@@ -270,19 +340,19 @@
                 <li>reanalysis_avg_temp_k – Durchschnittliche Lufttemperatur</li>
                 <li>reanalysis_tdtr_k – Temperaturschwankungen im Tagesverlauf</li>
 
-                <li>ndvi_se – Pixel südöstlich des Stadtzentrums</li>
-                <li>ndvi_sw – Pixel südwestlich des Stadtzentrums</li>
-                <li>ndvi_ne – Pixel nordöstlich des Stadtzentrums</li>
-                <li>ndvi_nw – Pixel nordwestlich des Stadtzentrums</li>
+                <li>ndvi_se – Südöstlichster Pixel des Stadtzentrums</li>
+                <li>ndvi_sw – Südwestlichster Pixel des Stadtzentrums</li>
+                <li>ndvi_ne – Nordöstlichster Pixel des Stadtzentrums</li>
+                <li>ndvi_nw – Nordwestlichter Pixel des Stadtzentrums</li>
             </ul>
         </div>
 
-        <hr class="hr-top">
-        <h2 class="part-title" id="methods">METHODEN</h2>
-        <hr class="hr-bottom">
-        <div class="group">
+        <div class="group" id="methods">
+            <hr class="hr-top">
+            <h2 class="part-title">METHODEN</h2>
+            <hr class="hr-bottom">
             <p>
-                Um schließlich Vorhersagen treffen zu können, haben wir vier verschiedene Maschinenlern-Techniken
+                Um schließlich Vorhersagen treffen zu können, haben wir vier verschiedene Machine Learning Techniken
                 verwendet und
                 miteinander verglichen. Zuerst haben wir ein klassisches MLP mit nur einem Ausgabe-Knoten ausprobiert,
                 das die Anzahl
@@ -308,7 +378,7 @@
                 mit einem MAE von
                 etwa 25,7 am besten abschnitt. Dieser wurde zusätzlich optimiert. Weitere Verbesserungen könnten mit
                 Gradient Boosting
-                bzw. XGBoost erzielt werden, was in der Regel bessere Ergebnisse als Random Forests liefert. Die
+                bzw. XGBoost erzielt werden, was in der Regel bessere Ergebnisse als Random Forest liefert. Die
                 erzielten MAEs scheinen
                 auf den ersten Blick sehr groß zu sein, was grundsätzlich auch stimmt. Dies liegt möglicherweise an dem
                 kleinen
@@ -318,37 +388,50 @@
                 konnten.
             </p>
         </div>
-        <hr class="hr-top">
-        <h2 class="part-title" id="stats">STATISTIKEN</h2>
-        <hr class="hr-bottom">
-        <div class="card">
-            <div>
-                <p>
-                    <span class="card-title">HOVER ME</span>
-                    <span class="card-description">here we are testing a description of the idea</span>
-                </p>
-                <img src="../analysis-correlation.png">
-            </div>
-            <div>
-                <p>
-                    <span class="card-title">HOVER ME</span>
-                    <span class="card-description">here we are testing a description of the idea</span>
-                </p>
-                <img src="../analysis-correlation.png">
-            </div>
-            <div>
-                <p>
-                    <span class="card-title">HOVER ME</span>
-                    <span class="card-description">here we are testing a description of the idea</span>
-                </p>
-                <img src="../analysis-correlation.png">
+        <div class="group" id="stats">
+            <hr class="hr-top">
+            <h2 class="part-title">STATISTIKEN</h2>
+            <hr class="hr-bottom">
+            <div class="card">
+                <div>
+                    <p>
+                        <span class="card-title">Korrelation</span>
+                        <span class="card-description">Hier haben wir die zusammenhänge zwischen den einzelnen Features
+                            und
+                            den Anzahl der Fälle untersucht.</span>
+                    </p>
+                    <img src="analysis-correlation.png">
+                </div>
+                <div>
+                    <p>
+                        <span class="card-title">Fälle</span>
+                        <span class="card-description">Anzahl der Fälle zu jedem gegebenen Zeitpunkt</span>
+                    </p>
+                    <img src="total_case_time.png">
+                </div>
+                <div>
+                    <p>
+                        <span class="card-title">BOXPLOTS</span>
+                        <span class="card-description">Hier ist die eine Hälfte der numerischen Daten. Dargestellt als
+                            Boxplots.</span>
+                    </p>
+                    <img src="analysis-boxplot_one.png">
+                </div>
+                <div>
+                    <p>
+                        <span class="card-title">BOXPLOTS</span>
+                        <span class="card-description">Hier ist die andere Hälfte der numerischen Daten. Dargestellt als
+                            Boxplots.</span>
+                    </p>
+                    <img src="analysis-boxplot_two.png">
+                </div>
             </div>
         </div>
 
-        <hr class="hr-top">
-        <h2 class="part-title" id="conclusion">FAZIT</h2>
-        <hr class="hr-bottom">
-        <div class="group">
+        <div class="group" id="conclusion">
+            <hr class="hr-top">
+            <h2 class="part-title">FAZIT</h2>
+            <hr class="hr-bottom">
             <p>
                 Mit Hilfe von KI ist es nun möglich, eine wöchentliche Vorhersage über Dengue-Fieber-Fälle in San Juan
                 und Iquitos zu
@@ -370,6 +453,25 @@
                 anzuwenden, um
                 Dengue-Fieber effektiv zu bekämpfen.
             </p>
+        </div>
+        <div class="group" id="team">
+            <hr class="hr-top">
+            <h2 class="part-title">TEAM</h2>
+            <hr class="hr-bottom">
+            <ul>
+                <li class="team">
+                    Abdullah Rehman, 16, Goethe-Gymnasium-Stolberg
+                </li>
+                <li class="team">
+                    Jan Mörkens, 17, Goethe-Gymnasium-Stolberg
+                </li>
+                <li class="team">
+                    Mohamad Sobh, 16, Goethe-Gymnasium-Stolberg
+                </li>
+                <li class="team">
+                    Dávid Groniewsky, 16, Carl-Friedrich-Gauß-Gymnasium Hockenheim
+                </li>
+            </ul>
         </div>
     </body>
 
